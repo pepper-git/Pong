@@ -1,0 +1,1251 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Farm Valley | เกมจำลองชีวิตชาวสวนพิกเซล (Open-World)</title>
+  <meta name="description" content="เกมทำฟาร์มพิกเซล Open-World เดินสำรวจ แต่งตัวตัวละคร ขับรถไถ รถเกี่ยว รถกระบะ และซื้อที่ดินขยายแปลงเกษตร">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Press+Start+2P&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+
+  <!-- Floating Toast Notifications -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Title Screen Overlay (หน้าจอแรกก่อนเข้าเกม) -->
+  <div id="title-screen" class="title-screen-overlay">
+    <div class="title-screen-backdrop"></div>
+    <div class="title-screen-container">
+      
+      <!-- Wooden Title Board & Logo -->
+      <div class="title-logo-board">
+        <div class="sprout-icon-top">🌱</div>
+        <div class="straw-hat-badge">👒</div>
+        <div class="title-logo-text">
+          <span class="title-word-small">My Little</span>
+          <span class="title-word-big">Farm</span>
+        </div>
+        <div class="title-ribbon-sub">
+          <span class="ribbon-carrot">🥕</span>
+          <span>ปลูก • เก็บ • ขาย • สร้างฟาร์มในแบบของคุณ</span>
+          <span class="ribbon-tomato">🍅</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons in Pixel Wooden Style -->
+      <div class="title-menu-buttons">
+        <button id="btn-title-new-game" class="title-btn title-btn-play" title="เริ่มต้นสร้างฟาร์มใหม่ตั้งแต่ต้น">
+          <span class="title-btn-icon">▶</span>
+          <span class="title-btn-text">New Game (เริ่มเกมใหม่)</span>
+        </button>
+
+        <button id="btn-title-load-game" class="title-btn title-btn-load" title="โหลดข้อมูลการเล่นล่าสุด">
+          <span class="title-btn-icon">💾</span>
+          <span class="title-btn-text">Load (เล่นต่อจากเดิม)</span>
+        </button>
+
+        <button id="btn-title-credits" class="title-btn title-btn-credit" title="ดูข้อมูลผู้จัดทำเกม">
+          <span class="title-btn-icon">📜</span>
+          <span class="title-btn-text">Credit (ผู้จัดทำ)</span>
+        </button>
+      </div>
+
+      <div class="title-footer-hint">
+        <span>🎮 Pixel Farm Valley • Made with Pixel Passion</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Credits Modal (หน้าต่างแสดงชื่อผู้จัดทำ) -->
+  <dialog id="modal-credits" class="pixel-modal">
+    <div class="modal-box credits-box">
+      <div class="modal-header header-credits">
+        <div class="modal-title">
+          <span class="modal-icon">📜</span>
+          <span>ข้อมูลผู้จัดทำ (Game Credits)</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-credits" aria-label="ปิด">✕</button>
+      </div>
+      <div class="modal-body credits-body">
+        <div class="credits-card">
+          <div class="credits-avatar">👨‍💻</div>
+          <div class="credits-role">ผู้สร้างและพัฒนาเกม (Creator & Developer)</div>
+          <div class="credits-name">นายณัทพงศ์ เก้าลิ้ม</div>
+          <div class="credits-desc">My Little Farm: Pixel Farm Valley Project</div>
+        </div>
+
+        <div class="credits-details">
+          <div class="credit-item">
+            <span class="credit-label">🎨 สไตล์งานภาพ:</span>
+            <span class="credit-val">16-Bit Retro Cozy Pixel Art</span>
+          </div>
+          <div class="credit-item">
+            <span class="credit-label">🌱 เกมเพลย์:</span>
+            <span class="credit-val">ทำฟาร์ม, ขับยานพาหนะ, แปรรูปผลผลิต, ขยายที่ดิน & บาคาร่าเสี่ยงโชค</span>
+          </div>
+          <div class="credit-item">
+            <span class="credit-label">❤️ ขอบคุณ:</span>
+            <span class="credit-val">ผู้เล่นทุกคนที่เข้ามาเยี่ยมชมและสร้างสรรค์ฟาร์มแสนอบอุ่น!</span>
+          </div>
+        </div>
+
+        <button id="btn-close-credits-bottom" class="pixel-btn btn-primary" style="width:100%; margin-top:14px;">
+          ตกลง / ปิดหน้าต่าง
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Game Main Screen -->
+  <div class="game-viewport">
+    
+    <!-- Top HUD Bar -->
+    <header class="top-hud">
+      <div class="hud-left">
+        <div class="farmer-profile-card" id="btn-open-wardrobe-hud" title="คลิกเพื่อแต่งตัวตัวละคร">
+          <div class="profile-preview-box" id="hud-avatar-box">
+            <!-- Mini canvas / avatar rendered by JS -->
+            <span id="hud-avatar-icon">👨‍🌾</span>
+          </div>
+          <div class="profile-info">
+            <span class="farmer-name" id="hud-farmer-name">ชาวสวนพิกเซล</span>
+            <span class="wardrobe-tag">👗 แต่งตัว [C]</span>
+          </div>
+        </div>
+
+        <div class="hud-gold-card" id="hud-gold-card" title="เหรียญทองของคุณ">
+          <span class="coin-icon">🪙</span>
+          <div class="gold-info">
+            <span class="gold-label">GOLD</span>
+            <span class="gold-amount" id="gold-value">350 G</span>
+          </div>
+          <button id="btn-cheat-add-gold" class="btn-quick-cheat" title="เสกเงิน 100,000G">+100,000G ⚡</button>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <!-- Vehicle Status -->
+        <div class="vehicle-status-badge" id="vehicle-status-badge">
+          <span id="vehicle-status-icon">🚶</span>
+          <span id="vehicle-status-text">เดินเท้า</span>
+          <button id="btn-dismount-hud" class="btn-dismount-pill" style="display: none;">ลงจากรถ [E]</button>
+        </div>
+
+        <!-- Seeder Seed Tank Selection (shown when driving seeder) -->
+        <div class="seeder-tank-badge" id="seeder-tank-badge" style="display: none;" title="เลือกเมล็ดพันธุ์ที่จะใส่ในถังหยอดเมล็ดอัตโนมัติ">
+          <span>🌱 ถังเมล็ด Seeder:</span>
+          <select id="seeder-crop-select" class="seeder-select"></select>
+        </div>
+
+        <!-- Farmland Size Badge -->
+        <div class="farm-size-badge" id="farm-size-badge" title="ขนาดแปลงฟาร์มปัจจุบัน">
+          <span>🌾 แปลงฟาร์ม: <strong id="farm-size-text">4x4 (16 แปลง)</strong></span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <!-- Quick teleport or map guide -->
+        <button id="btn-guide-modal" class="pixel-btn btn-guide" title="วิธีเล่น & แผนที่">
+          <span>🗺️ คำแนะนำ</span>
+        </button>
+        <button id="btn-open-save-menu" class="pixel-btn btn-save" title="บันทึก / ข้อมูลเกม">
+          <span>💾 เซฟ</span>
+        </button>
+        <button id="btn-toggle-audio" class="pixel-btn btn-audio" title="เปิด/ปิดเสียง">
+          <span id="audio-icon">🔊</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Canvas Game World Container -->
+    <div class="canvas-wrapper">
+      <canvas id="game-canvas"></canvas>
+
+      <!-- Proximity Action Interaction Prompt (Follows player or floats on screen) -->
+      <div id="interaction-prompt" class="interaction-prompt" style="display: none;">
+        <span class="key-badge">E</span>
+        <span id="interaction-text">เปิดร้านค้า</span>
+      </div>
+
+      <!-- Controls & Minimap Overlay Hints -->
+      <div class="canvas-hints">
+        <div class="hint-tag">🕹️ เดิน: [W][A][S][D] หรือ [ลูกศร]</div>
+        <div class="hint-tag">⚡ ลงมือ: [Space] หรือ คลิกที่แปลง</div>
+        <div class="hint-tag">🚗 ขับ/ลงรถ: [E] | 👗 แต่งตัว: [C]</div>
+      </div>
+    </div>
+
+    <!-- Bottom Toolbar (Tools & Seeds) -->
+    <footer class="bottom-toolbar-wrapper">
+      <div class="toolbar-header">
+        <span class="toolbar-title">🛠️ TOOLBAR (เลือกเครื่องมือแล้วคลิกหรือกด Space บนแปลงผัก)</span>
+        <span class="selected-tool-info" id="selected-tool-info">เครื่องมือปัจจุบัน: ⛏️ จอบ (Plow)</span>
+      </div>
+
+      <div class="toolbar-slots" id="toolbar-slots" role="toolbar" aria-label="แถบเลือกเครื่องมือ">
+        <button class="tool-btn active" data-tool="plow" id="tool-plow" title="จอบ (Plow) - ใช้พรวนหญ้าให้เป็นดิน [กด 1]">
+          <span class="tool-key">1</span>
+          <span class="tool-emoji">⛏️</span>
+          <span class="tool-name">จอบ</span>
+        </button>
+
+        <button class="tool-btn" data-tool="water" id="tool-water" title="บัวรดน้ำ (Water) - รดน้ำแปลงที่หว่านเมล็ดแล้ว [กด 2]">
+          <span class="tool-key">2</span>
+          <span class="tool-emoji">💦</span>
+          <span class="tool-name">รดน้ำ</span>
+        </button>
+
+        <button class="tool-btn" data-tool="basket" id="tool-basket" title="ตะกร้า (Basket) - เก็บเกี่ยวพืชที่โตเต็มที่ [กด 3]">
+          <span class="tool-key">3</span>
+          <span class="tool-emoji">🧺</span>
+          <span class="tool-name">ตะกร้า</span>
+        </button>
+
+        <button class="tool-btn" data-tool="fertilizer" id="tool-fertilizer" title="ปุ๋ยอัปเกรดดินพรีเมียม (Rich Fertilizer) [กด 4]">
+          <span class="tool-key">4</span>
+          <span class="tool-emoji">✨</span>
+          <span class="tool-name">ปุ๋ยพรีเมียม</span>
+          <span class="tool-badge" id="badge-fertilizer">0</span>
+        </button>
+
+        <button class="tool-btn tool-btn-disaster" data-tool="water_pump" id="tool-water-pump" title="ปั๊มน้ำ (Water Pump) - ใช้สูบน้ำออกจากแปลงที่น้ำท่วมขัง">
+          <span class="tool-emoji">💧</span>
+          <span class="tool-name">ปั๊มน้ำ</span>
+          <span class="tool-badge tool-badge-disaster" id="badge-water-pump">0</span>
+        </button>
+
+        <button class="tool-btn tool-btn-disaster" data-tool="repellent" id="tool-repellent" title="ยาฆ่าแมลง (Insect Repellent) - ใช้ไล่ตั๊กแตนออกจากแปลงปลูก">
+          <span class="tool-emoji">🧪</span>
+          <span class="tool-name">ยาแมลง</span>
+          <span class="tool-badge tool-badge-disaster" id="badge-repellent">0</span>
+        </button>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Quick Active Seed Button & Dropdown/Pouch -->
+        <button class="tool-btn" data-tool="seed_active" id="tool-seed-active" title="เมล็ดพันธุ์ปัจจุบัน (คลิกเพื่อเลือกเมล็ดจากกระเป๋า) [กด 5]">
+          <span class="tool-key">5</span>
+          <span class="tool-emoji" id="active-seed-emoji">🥕</span>
+          <span class="tool-name" id="active-seed-name">แครอท</span>
+          <span class="tool-badge" id="badge-active-seed">5</span>
+        </button>
+
+        <button class="tool-btn btn-seed-pouch" id="btn-open-seed-pouch" title="เปิดกระเป๋าเลือกเมล็ดพันธุ์ (20 ชนิด)">
+          <span class="tool-emoji">🎒</span>
+          <span class="tool-name">ถุงเมล็ด</span>
+        </button>
+      </div>
+
+      <!-- Seed Pouch Popover Bar -->
+      <div class="seed-pouch-bar" id="seed-pouch-bar" style="display: none;">
+        <div class="pouch-header">
+          <span>🎒 เลือกเมล็ดพันธุ์ที่จะถือลงแปลง (คลิกเลือกเมล็ด):</span>
+          <button class="btn-close-pouch" id="btn-close-pouch">✕</button>
+        </div>
+        <div class="pouch-grid" id="pouch-grid">
+          <!-- Filled dynamically via JS with all 20 seeds and their counts -->
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 1: ร้านค้าเกษตรทั่วไป (General Farm Shop) -->
+  <!-- (เปิดเมื่อผู้เล่นเดินไปคุยที่หน้าร้านค้าในแมพ) -->
+  <!-- ========================================== -->
+  <dialog id="modal-farm-shop" class="pixel-modal">
+    <div class="modal-box">
+      <div class="modal-header header-farm-shop">
+        <div class="modal-title">
+          <span class="modal-icon">🛒</span>
+          <span>ร้านค้าเกษตรลุงไซลาส (General Farm Shop)</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-farm-shop" aria-label="ปิดร้านค้า">✕</button>
+      </div>
+
+      <div class="shop-tabs">
+        <button class="shop-tab active" id="tab-btn-buy" data-tab="shop-buy-view">🌱 ซื้อเมล็ดพันธุ์ & ปุ๋ย</button>
+        <button class="shop-tab" id="tab-btn-sell" data-tab="shop-sell-view">💰 ขายผลผลิต (Sell Crops)</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="shop-buy-view" class="shop-tab-content active">
+          <p class="section-desc">ยินดีต้อนรับสู่ร้านค้าในฟาร์ม! ซื้อเมล็ดพันธุ์และปุ๋ยอัปเกรดดิน:</p>
+
+          <div class="shop-filter-bar">
+            <span class="filter-label">หมวดหมู่:</span>
+            <button class="shop-filter-btn active" data-filter="all">ทั้งหมด (20 ชนิด)</button>
+            <button class="shop-filter-btn" data-filter="basic">🌱 ดินธรรมดา (10 ชนิด)</button>
+            <button class="shop-filter-btn" data-filter="premium">✨ ดินพรีเมียม (10 ชนิด)</button>
+          </div>
+
+          <div class="shop-item-list" id="shop-crop-item-list">
+            <!-- Basic Soil Crops (10 items) -->
+            <!-- 1. แครอท -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🥕</div>
+              <div class="shop-card-details">
+                <div class="item-title">แครอท (Carrot)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 5 วิ</span></div>
+                <div class="item-desc">ขายสด 15G (แปรรูปเป็น น้ำแครอทสกัด 45G)</div>
+                <div class="item-price">🪙 10 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_carrot" data-cost="10" data-amount="1">ซื้อ 1 (10G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_carrot" data-cost="50" data-amount="5">ซื้อ 5 (50G)</button>
+              </div>
+            </div>
+
+            <!-- 2. ข้าวสาลี -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🌾</div>
+              <div class="shop-card-details">
+                <div class="item-title">ข้าวสาลี (Wheat)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 8 วิ</span></div>
+                <div class="item-desc">ขายสด 30G (แปรรูปเป็น ขนมปังกรอบ 90G)</div>
+                <div class="item-price">🪙 20 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_wheat" data-cost="20" data-amount="1">ซื้อ 1 (20G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_wheat" data-cost="100" data-amount="5">ซื้อ 5 (100G)</button>
+              </div>
+            </div>
+
+            <!-- 3. มะเขือเทศ -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🍅</div>
+              <div class="shop-card-details">
+                <div class="item-title">มะเขือเทศ (Tomato)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 10 วิ</span></div>
+                <div class="item-desc">ขายสด 45G (แปรรูปเป็น ซอสมะเขือเทศ 135G)</div>
+                <div class="item-price">🪙 28 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_tomato" data-cost="28" data-amount="1">ซื้อ 1 (28G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_tomato" data-cost="140" data-amount="5">ซื้อ 5 (140G)</button>
+              </div>
+            </div>
+
+            <!-- 4. ข้าวโพด -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🌽</div>
+              <div class="shop-card-details">
+                <div class="item-title">ข้าวโพดหวาน (Sweet Corn)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 12 วิ</span></div>
+                <div class="item-desc">ขายสด 60G (แปรรูปเป็น ป๊อปคอร์นเนย 180G)</div>
+                <div class="item-price">🪙 35 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_corn" data-cost="35" data-amount="1">ซื้อ 1 (35G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_corn" data-cost="175" data-amount="5">ซื้อ 5 (175G)</button>
+              </div>
+            </div>
+
+            <!-- 5. มันฝรั่ง -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🥔</div>
+              <div class="shop-card-details">
+                <div class="item-title">มันฝรั่ง (Potato)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 14 วิ</span></div>
+                <div class="item-desc">ขายสด 75G (แปรรูปเป็น มันฝรั่งทอดกรอบ 225G)</div>
+                <div class="item-price">🪙 42 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_potato" data-cost="42" data-amount="1">ซื้อ 1 (42G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_potato" data-cost="210" data-amount="5">ซื้อ 5 (210G)</button>
+              </div>
+            </div>
+
+            <!-- 6. กะหล่ำปลี -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🥬</div>
+              <div class="shop-card-details">
+                <div class="item-title">กะหล่ำปลี (Cabbage)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 16 วิ</span></div>
+                <div class="item-desc">ขายสด 90G (แปรรูปเป็น กิมจิหมักเกาหลี 270G)</div>
+                <div class="item-price">🪙 50 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_cabbage" data-cost="50" data-amount="1">ซื้อ 1 (50G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_cabbage" data-cost="250" data-amount="5">ซื้อ 5 (250G)</button>
+              </div>
+            </div>
+
+            <!-- 7. หอมหัวใหญ่ -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🧅</div>
+              <div class="shop-card-details">
+                <div class="item-title">หอมหัวใหญ่ (Onion)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 18 วิ</span></div>
+                <div class="item-desc">ขายสด 110G (แปรรูปเป็น หอมทอดกรอบ 330G)</div>
+                <div class="item-price">🪙 60 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_onion" data-cost="60" data-amount="1">ซื้อ 1 (60G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_onion" data-cost="300" data-amount="5">ซื้อ 5 (300G)</button>
+              </div>
+            </div>
+
+            <!-- 8. ถั่วลันเตา -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🫛</div>
+              <div class="shop-card-details">
+                <div class="item-title">ถั่วลันเตา (Green Peas)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 20 วิ</span></div>
+                <div class="item-desc">ขายสด 130G (แปรรูปเป็น ซุปถั่วพรีเมียม 390G)</div>
+                <div class="item-price">🪙 70 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_peas" data-cost="70" data-amount="1">ซื้อ 1 (70G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_peas" data-cost="350" data-amount="5">ซื้อ 5 (350G)</button>
+              </div>
+            </div>
+
+            <!-- 9. แตงกวา -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🥒</div>
+              <div class="shop-card-details">
+                <div class="item-title">แตงกวาญี่ปุ่น (Cucumber)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 22 วิ</span></div>
+                <div class="item-desc">ขายสด 150G (แปรรูปเป็น แตงกวาดองโฮมเมด 450G)</div>
+                <div class="item-price">🪙 80 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_cucumber" data-cost="80" data-amount="1">ซื้อ 1 (80G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_cucumber" data-cost="400" data-amount="5">ซื้อ 5 (400G)</button>
+              </div>
+            </div>
+
+            <!-- 10. พริกหวาน -->
+            <div class="shop-card" data-soil="basic">
+              <div class="shop-card-visual">🫑</div>
+              <div class="shop-card-details">
+                <div class="item-title">พริกหวานหลากสี (Bell Pepper)</div>
+                <div class="item-tags"><span class="tag-basic">ดินธรรมดา</span> <span class="tag-time">โต 25 วิ</span></div>
+                <div class="item-desc">ขายสด 180G (แปรรูปเป็น ปาปริก้าผงรมควัน 540G)</div>
+                <div class="item-price">🪙 95 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_bellpepper" data-cost="95" data-amount="1">ซื้อ 1 (95G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_bellpepper" data-cost="475" data-amount="5">ซื้อ 5 (475G)</button>
+              </div>
+            </div>
+
+            <!-- Premium Soil Crops (10 items) -->
+            <!-- 11. โกโก้ -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">🍫</div>
+              <div class="shop-card-details">
+                <div class="item-title">เมล็ดโกโก้ (Cocoa)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียม</span> <span class="tag-time">โต 28 วิ</span></div>
+                <div class="item-desc">ขายสด 220G (แปรรูปเป็น ช็อกโกแลตพรีเมียม 660G)</div>
+                <div class="item-price">🪙 110 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_cocoa" data-cost="110" data-amount="1">ซื้อ 1 (110G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_cocoa" data-cost="550" data-amount="5">ซื้อ 5 (550G)</button>
+              </div>
+            </div>
+
+            <!-- 12. สตรอเบอร์รี่ -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">🍓</div>
+              <div class="shop-card-details">
+                <div class="item-title">สตรอเบอร์รี่หวานฉ่ำ (Strawberry)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียม</span> <span class="tag-time">โต 30 วิ</span></div>
+                <div class="item-desc">ขายสด 260G (แปรรูปเป็น แยมสตรอเบอร์รี่ 780G)</div>
+                <div class="item-price">🪙 130 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_strawberry" data-cost="130" data-amount="1">ซื้อ 1 (130G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_strawberry" data-cost="650" data-amount="5">ซื้อ 5 (650G)</button>
+              </div>
+            </div>
+
+            <!-- 13. เมลอนญี่ปุ่น -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">🍈</div>
+              <div class="shop-card-details">
+                <div class="item-title">เมลอนญี่ปุ่นมงกุฎ (Crown Melon)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียม</span> <span class="tag-time">โต 34 วิ</span></div>
+                <div class="item-desc">ขายสด 320G (แปรรูปเป็น ไอศกรีมเมลอน 960G)</div>
+                <div class="item-price">🪙 160 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_melon" data-cost="160" data-amount="1">ซื้อ 1 (160G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_melon" data-cost="800" data-amount="5">ซื้อ 5 (800G)</button>
+              </div>
+            </div>
+
+            <!-- 14. องุ่นไวน์ -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">🍇</div>
+              <div class="shop-card-details">
+                <div class="item-title">องุ่นคาร์เบอร์เนต์ (Wine Grapes)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียม</span> <span class="tag-time">โต 38 วิ</span></div>
+                <div class="item-desc">ขายสด 400G (แปรรูปเป็น ไวน์องุ่นบ่มพิเศษ 1,200G)</div>
+                <div class="item-price">🪙 200 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_grape" data-cost="200" data-amount="1">ซื้อ 1 (200G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_grape" data-cost="1000" data-amount="5">ซื้อ 5 (1,000G)</button>
+              </div>
+            </div>
+
+            <!-- 15. บลูเบอร์รี่ -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">🫐</div>
+              <div class="shop-card-details">
+                <div class="item-title">บลูเบอร์รี่ป่า (Blueberry)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียม</span> <span class="tag-time">โต 42 วิ</span></div>
+                <div class="item-desc">ขายสด 480G (แปรรูปเป็น พายบลูเบอร์รี่อบ 1,440G)</div>
+                <div class="item-price">🪙 240 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_blueberry" data-cost="240" data-amount="1">ซื้อ 1 (240G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_blueberry" data-cost="1200" data-amount="5">ซื้อ 5 (1,200G)</button>
+              </div>
+            </div>
+
+            <!-- 16. สับปะรดทองคำ -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">🍍</div>
+              <div class="shop-card-details">
+                <div class="item-title">สับปะรดทองคำ (Golden Pineapple)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียม</span> <span class="tag-time">โต 46 วิ</span></div>
+                <div class="item-desc">ขายสด 580G (แปรรูปเป็น ค็อกเทลพีน่าโคลาดา 1,740G)</div>
+                <div class="item-price">🪙 290 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_pineapple" data-cost="290" data-amount="1">ซื้อ 1 (290G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_pineapple" data-cost="1450" data-amount="5">ซื้อ 5 (1,450G)</button>
+              </div>
+            </div>
+
+            <!-- 17. เห็ดทรัฟเฟิล -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">🍄</div>
+              <div class="shop-card-details">
+                <div class="item-title">เห็ดทรัฟเฟิลดำ (Black Truffle)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียม</span> <span class="tag-time">โต 50 วิ</span></div>
+                <div class="item-desc">ขายสด 700G (แปรรูปเป็น น้ำมันทรัฟเฟิล 2,100G)</div>
+                <div class="item-price">🪙 350 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_truffle" data-cost="350" data-amount="1">ซื้อ 1 (350G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_truffle" data-cost="1750" data-amount="5">ซื้อ 5 (1,750G)</button>
+              </div>
+            </div>
+
+            <!-- 18. แก้วมังกร -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">🐲</div>
+              <div class="shop-card-details">
+                <div class="item-title">แก้วมังกรแดง (Dragon Fruit)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียม</span> <span class="tag-time">โต 55 วิ</span></div>
+                <div class="item-desc">ขายสด 850G (แปรรูปเป็น สมูทตี้เพลิงมังกร 2,550G)</div>
+                <div class="item-price">🪙 420 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_dragonfruit" data-cost="420" data-amount="1">ซื้อ 1 (420G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_dragonfruit" data-cost="2100" data-amount="5">ซื้อ 5 (2,100G)</button>
+              </div>
+            </div>
+
+            <!-- 19. กีวีทอง -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">🥝</div>
+              <div class="shop-card-details">
+                <div class="item-title">กีวีทองคำซันโกลด์ (Golden Kiwi)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียม</span> <span class="tag-time">โต 60 วิ</span></div>
+                <div class="item-desc">ขายสด 1,000G (แปรรูปเป็น กีวี่เคลือบน้ำตาล 3,000G)</div>
+                <div class="item-price">🪙 500 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_kiwi" data-cost="500" data-amount="1">ซื้อ 1 (500G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_kiwi" data-cost="2500" data-amount="5">ซื้อ 5 (2,500G)</button>
+              </div>
+            </div>
+
+            <!-- 20. ผลไม้แห่งดวงดาว -->
+            <div class="shop-card premium-card" data-soil="premium">
+              <div class="shop-card-visual">⭐</div>
+              <div class="shop-card-details">
+                <div class="item-title">ผลไม้แห่งดวงดาว (Starfruit of Legend)</div>
+                <div class="item-tags"><span class="tag-premium">✨ ดินพรีเมียมสูงสุด</span> <span class="tag-time">โต 70 วิ</span></div>
+                <div class="item-desc">ผลผลิตในตำนาน ขายสด 1,600G (แปรรูปเป็น น้ำอมฤตดวงดาว 5,000G!)</div>
+                <div class="item-price">🪙 800 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy" data-buy-item="seed_starfruit" data-cost="800" data-amount="1">ซื้อ 1 (800G)</button>
+                <button class="btn-buy btn-buy-pack" data-buy-item="seed_starfruit" data-cost="4000" data-amount="5">ซื้อ 5 (4,000G)</button>
+              </div>
+            </div>
+
+            <!-- ปุ๋ยอัปเกรดดินพรีเมียม -->
+            <div class="shop-card upgrade-card">
+              <div class="shop-card-visual">✨</div>
+              <div class="shop-card-details">
+                <div class="item-title">ปุ๋ยอัปเกรดดินพรีเมียม (Rich Soil Fertilizer)</div>
+                <div class="item-tags"><span class="tag-special">ถาวร</span> <span class="tag-premium">ปลดล็อกพืชพรีเมียม 10 ชนิด</span></div>
+                <div class="item-desc">ใช้คลิกบนดินธรรมดาเพื่อเปลี่ยนเป็นดินสีทองอย่างถาวร</div>
+                <div class="item-price">🪙 200 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy btn-highlight" data-buy-item="fertilizer" data-cost="200" data-amount="1">ซื้อ 1 ถุง (200G)</button>
+                <button class="btn-buy btn-highlight" data-buy-item="fertilizer" data-cost="1000" data-amount="5">ซื้อ 5 ถุง (1,000G)</button>
+              </div>
+            </div>
+            <!-- ===== ชุดป้องกันภัยพิบัติ ===== -->
+            <div class="shop-card disaster-card">
+              <div class="shop-card-visual">💧</div>
+              <div class="shop-card-details">
+                <div class="item-title">ปั๊มน้ำสูบน้ำท่วม (Water Pump)</div>
+                <div class="item-tags"><span class="tag-disaster">⚠️ ภัยพิบัติ</span> <span class="tag-special">น้ำท่วมขัง</span></div>
+                <div class="item-desc">ใช้สูบน้ำออกจากแปลงที่ถูกน้ำท่วม พืชจะเสียหาย ต้องพรวนดินและหว่านเมล็ดใหม่</div>
+                <div class="item-price">🪙 150 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy btn-disaster-buy" data-buy-item="water_pump" data-cost="150" data-amount="1">ซื้อ 1 อัน (150G)</button>
+                <button class="btn-buy btn-disaster-buy" data-buy-item="water_pump" data-cost="600" data-amount="5">ซื้อ 5 อัน (600G)</button>
+              </div>
+            </div>
+
+            <div class="shop-card disaster-card">
+              <div class="shop-card-visual">🧪</div>
+              <div class="shop-card-details">
+                <div class="item-title">ยาฆ่าแมลง (Insect Repellent)</div>
+                <div class="item-tags"><span class="tag-disaster">⚠️ ภัยพิบัติ</span> <span class="tag-special">ตั๊กแตนระบาด</span></div>
+                <div class="item-desc">ใช้ไล่ตั๊กแตนออกจากแปลงก่อนหมดเวลา 20 วินาที หากไม่ทัน พืชจะถูกกินหมด!</div>
+                <div class="item-price">🪙 120 G</div>
+              </div>
+              <div class="shop-card-actions">
+                <button class="btn-buy btn-disaster-buy" data-buy-item="repellent" data-cost="120" data-amount="1">ซื้อ 1 ขวด (120G)</button>
+                <button class="btn-buy btn-disaster-buy" data-buy-item="repellent" data-cost="500" data-amount="5">ซื้อ 5 ขวด (500G)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="shop-sell-view" class="shop-tab-content">
+          <div class="sell-overview">
+            <p class="section-desc">นำผักและผลไม้ที่คุณเก็บเกี่ยวได้มาขายเป็นเหรียญทอง:</p>
+            <button id="btn-sell-all-crops" class="pixel-btn btn-sell-all">💰 ขายผลผลิตทั้งหมดในคราวเดียว</button>
+          </div>
+          <div class="sell-item-list" id="sell-crop-list"></div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================== -->
+  <!-- MODAL 2: โชว์รูมและอู่ยานยนต์ (Vehicle Dealership) -->
+  <!-- (เปิดเมื่อผู้เล่นเดินไปที่โชว์รูมยานยนต์ในแมพ) -->
+  <!-- ========================================== -->
+  <dialog id="modal-vehicle-shop" class="pixel-modal">
+    <div class="modal-box vehicle-theme">
+      <div class="modal-header header-vehicle-shop">
+        <div class="modal-title">
+          <span class="modal-icon">🚜</span>
+          <span>โชว์รูมยานยนต์และเครื่องจักรเกษตร (Vehicle Dealership)</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-vehicle-shop" aria-label="ปิดโชว์รูม">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="vehicle-dealership-intro">
+          ยินดีต้อนรับสู่อู่จำหน่ายยานพาหนะ! รถทุกคันเมื่อซื้อแล้วจะ <strong>จอดที่ลานหน้าร้านและสามารถขึ้นขับได้จริง [กด E]!</strong>
+        </p>
+
+        <div class="vehicle-cards-grid">
+          <!-- 1. Tractor -->
+          <div class="vehicle-card" id="card-tractor">
+            <div class="vehicle-header">
+              <span class="vehicle-icon">🚜</span>
+              <div class="vehicle-badge">รถไถพรวนดินอัตโนมัติ</div>
+            </div>
+            <h3 class="vehicle-title">Tractor (รถไถฟาร์ม)</h3>
+            <p class="vehicle-desc">
+              ขับขี่ได้จริง! เมื่อขับทับแปลงหญ้าว่างเปล่า <strong class="highlight-text">จะพรวนดินเป็นดินพร้อมปลูกให้อัตโนมัติทันที</strong> โดยไม่ต้องเหนื่อยออกแรงขุดทีละช่อง!
+            </p>
+            <div class="vehicle-spec">
+              <span>ฟังก์ชัน:</span> <span>ขับทับ = พรวนดินอัตโนมัติ</span>
+            </div>
+            <div class="vehicle-price-box">
+              <span class="price-tag">🪙 1,000 G</span>
+              <button id="btn-buy-tractor" class="pixel-btn btn-buy-vehicle" data-vehicle="tractor" data-cost="1000">
+                ซื้อรถไถ (1,000G)
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Harvester -->
+          <div class="vehicle-card" id="card-harvester">
+            <div class="vehicle-header">
+              <span class="vehicle-icon">🚛</span>
+              <div class="vehicle-badge">รถเกี่ยวข้าวอัตโนมัติ</div>
+            </div>
+            <h3 class="vehicle-title">Harvester (รถเกี่ยวข้าวมหาสมบัติ)</h3>
+            <p class="vehicle-desc">
+              สุดยอดรถเกี่ยวข้าวขนาดใหญ่! เมื่อขับทับแปลงที่มีผลผลิตสุกเต็มที่ <strong class="highlight-text">จะเกี่ยวผลผลิตทั้งหมดเข้ากระเป๋าให้อัตโนมัติ</strong> รวดเร็วทันใจ!
+            </p>
+            <div class="vehicle-spec">
+              <span>ฟังก์ชัน:</span> <span>ขับทับ = เกี่ยวผลผลิตทันที</span>
+            </div>
+            <div class="vehicle-price-box">
+              <span class="price-tag">🪙 2,500 G</span>
+              <button id="btn-buy-harvester" class="pixel-btn btn-buy-vehicle" data-vehicle="harvester" data-cost="2500">
+                ซื้อรถเกี่ยว (2,500G)
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Pickup Truck -->
+          <div class="vehicle-card" id="card-truck">
+            <div class="vehicle-header">
+              <span class="vehicle-icon">🛻</span>
+              <div class="vehicle-badge">รถกระบะบรรทุกความเร็วสูง</div>
+            </div>
+            <h3 class="vehicle-title">Pickup Truck (รถกระบะชาวสวน)</h3>
+            <p class="vehicle-desc">
+              รถกระบะความเร็วสูง วิ่งฉิวรอบฟาร์ม ช่วยให้คุณเดินทางไปร้านค้า อู่รถ และแปลงเกษตรได้อย่างรวดเร็วทันใจ พร้อมกระบะท้ายสุดเท่!
+            </p>
+            <div class="vehicle-spec">
+              <span>ฟังก์ชัน:</span> <span>ความเร็วสูง + วิ่งสำรวจฟาร์ม</span>
+            </div>
+            <div class="vehicle-price-box">
+              <span class="price-tag">🪙 750 G</span>
+              <button id="btn-buy-truck" class="pixel-btn btn-buy-vehicle" data-vehicle="truck" data-cost="750">
+                ซื้อรถกระบะ (750G)
+              </button>
+            </div>
+          </div>
+
+          <!-- 4. Seeder Machine -->
+          <div class="vehicle-card" id="card-seeder">
+            <div class="vehicle-header">
+              <span class="vehicle-icon">🚜🌱</span>
+              <div class="vehicle-badge">รถหยอดเมล็ดอัตโนมัติ</div>
+            </div>
+            <h3 class="vehicle-title">Seeder (รถหยอดเมล็ดอัจฉริยะ)</h3>
+            <p class="vehicle-desc">
+              ติดตั้งถังจ่ายเมล็ดพันธุ์อัตโนมัติ! เลือกชนิดเมล็ดที่จะบรรจุในเครื่อง เมื่อขับทับแปลงดินที่พรวนแล้ว <strong class="highlight-text">จะหยอดเมล็ดลงดินให้อัตโนมัติทันทีทีละช่อง!</strong>
+            </p>
+            <div class="vehicle-spec">
+              <span>ฟังก์ชัน:</span> <span>ขับทับ = หยอดเมล็ดอัตโนมัติ</span>
+            </div>
+            <div class="vehicle-price-box">
+              <span class="price-tag">🪙 1,800 G</span>
+              <button id="btn-buy-seeder" class="pixel-btn btn-buy-vehicle" data-vehicle="seeder" data-cost="1800">
+                ซื้อรถหยอดเมล็ด (1,800G)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================== -->
+  <!-- MODAL 3: ห้องแต่งตัวตัวละคร (Wardrobe & Dressing) -->
+  <!-- ========================================== -->
+  <dialog id="modal-wardrobe" class="pixel-modal">
+    <div class="modal-box wardrobe-theme">
+      <div class="modal-header header-wardrobe">
+        <div class="modal-title">
+          <span class="modal-icon">👗</span>
+          <span>ห้องแต่งตัวชาวสวน (Character Dressing Room)</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-wardrobe" aria-label="ปิดห้องแต่งตัว">✕</button>
+      </div>
+
+      <div class="modal-body wardrobe-body">
+        <div class="wardrobe-layout">
+          <!-- Left: Live Character Preview -->
+          <div class="wardrobe-preview-panel">
+            <div class="preview-stage">
+              <canvas id="wardrobe-canvas" width="120" height="150"></canvas>
+            </div>
+            <input type="text" id="input-farmer-name" class="pixel-input" value="ชาวสวนพิกเซล" maxlength="16" placeholder="ชื่อชาวสวน">
+            <span class="preview-hint">ตัวละครของคุณในเกม</span>
+          </div>
+
+          <!-- Right: Customizer Options -->
+          <div class="wardrobe-options-panel">
+            <!-- หมวก -->
+            <div class="custom-group">
+              <label class="custom-label">หมวก (Hats)</label>
+              <div class="options-grid" id="opt-hat-grid">
+                <button class="chip-opt active" data-cat="hat" data-val="none">❌ ไม่ใส่หมวก (สไตล์ Heartwood)</button>
+                <button class="chip-opt" data-cat="hat" data-val="straw">🌾 หมวกฟาง</button>
+                <button class="chip-opt" data-cat="hat" data-val="cap">🧢 หมวกแก๊ปแดง</button>
+                <button class="chip-opt" data-cat="hat" data-val="cowboy">🤠 หมวกคาวบอย</button>
+                <button class="chip-opt" data-cat="hat" data-val="flower">🌸 มงกุฎดอกไม้</button>
+              </div>
+            </div>
+
+            <!-- เสื้อ -->
+            <div class="custom-group">
+              <label class="custom-label">เสื้อ (Shirts)</label>
+              <div class="options-grid" id="opt-shirt-grid">
+                <button class="chip-opt active" data-cat="shirt" data-val="#6b4f2c">🟤 เสื้อนักผจญภัย Heartwood</button>
+                <button class="chip-opt" data-cat="shirt" data-val="#2563eb">🔵 เอี๊ยมยีนส์น้ำเงิน</button>
+                <button class="chip-opt" data-cat="shirt" data-val="#dc2626">🔴 เสื้อสก็อตแดง</button>
+                <button class="chip-opt" data-cat="shirt" data-val="#16a34a">🟢 เสื้อฟาร์มเขียว</button>
+                <button class="chip-opt" data-cat="shirt" data-val="#ca8a04">🟡 เสื้อชาวไร่เหลือง</button>
+                <button class="chip-opt" data-cat="shirt" data-val="#1e293b">⚫ แจ็กเก็ตดำ</button>
+              </div>
+            </div>
+
+            <!-- กางเกง -->
+            <div class="custom-group">
+              <label class="custom-label">กางเกง (Pants)</label>
+              <div class="options-grid" id="opt-pants-grid">
+                <button class="chip-opt active" data-cat="pants" data-val="#2f852b">🟢 กางเกงลายพรางเขียว (Heartwood)</button>
+                <button class="chip-opt" data-cat="pants" data-val="#1e3a8a">👖 ยีนส์เข้ม</button>
+                <button class="chip-opt" data-cat="pants" data-val="#78350f">🟤 กางเกงสีน้ำตาล</button>
+                <button class="chip-opt" data-cat="pants" data-val="#0f172a">⚫ สแล็คดำ</button>
+                <button class="chip-opt" data-cat="pants" data-val="#475569">⚪ เทาควันบุหรี่</button>
+              </div>
+            </div>
+
+            <!-- รูปแบบทรงผม (Hairstyles) -->
+            <div class="custom-group">
+              <label class="custom-label">รูปแบบทรงผม (Hairstyles)</label>
+              <div class="options-grid" id="opt-hairstyle-grid">
+                <button class="chip-opt active" data-cat="hairstyle" data-val="wavy_long">🌊 ผมลอนยาวแสกกลาง (Heartwood)</button>
+                <button class="chip-opt" data-cat="hairstyle" data-val="spiky_hero">⚡ ผมตั้งสไตล์อนิเมะ (Spiky Hero)</button>
+                <button class="chip-opt" data-cat="hairstyle" data-val="ponytail">🎀 ผมหางม้ามัดสูง (High Ponytail)</button>
+                <button class="chip-opt" data-cat="hairstyle" data-val="twintails">👧 ผมทวินเทลสองข้าง (Twin Tails)</button>
+                <button class="chip-opt" data-cat="hairstyle" data-val="bob_cut">💇‍♀️ บ็อบสั้นหน้าม้า (Cute Bob Cut)</button>
+                <button class="chip-opt" data-cat="hairstyle" data-val="short_messy">🌾 ผมสั้นเซอร์ชาวไร่ (Messy Crop)</button>
+                <button class="chip-opt" data-cat="hairstyle" data-val="curly_afro">☁️ ผมหยิกฟูมีสไตล์ (Curly Afro)</button>
+                <button class="chip-opt" data-cat="hairstyle" data-val="buzz_cut">✨ สกินเฮดเท่ๆ (Buzz Cut)</button>
+              </div>
+            </div>
+
+            <!-- สีผม -->
+            <div class="custom-group">
+              <label class="custom-label">สีผม (Hair Color)</label>
+              <div class="options-grid" id="opt-hair-grid">
+                <button class="chip-opt active" data-cat="hair" data-val="#302217">🟤 น้ำตาลเข้มธรรมชาติ (Heartwood)</button>
+                <button class="chip-opt" data-cat="hair" data-val="#0f172a">⚫ ดำขลับสนิท</button>
+                <button class="chip-opt" data-cat="hair" data-val="#eab308">🟡 สีบลอนด์ทองสว่าง</button>
+                <button class="chip-opt" data-cat="hair" data-val="#b91c1c">🔴 ส้มแดงเพลิง</button>
+                <button class="chip-opt" data-cat="hair" data-val="#9333ea">🟣 ม่วงแฟนตาซี</button>
+                <button class="chip-opt" data-cat="hair" data-val="#0284c7">🔵 ฟ้าครามสดใส</button>
+                <button class="chip-opt" data-cat="hair" data-val="#e2e8f0">⚪ เงินแพลตตินัม</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================== -->
+  <!-- MODAL 4: ออกแบบผังแปลงฟาร์ม (Custom Farmland Architect) -->
+  <!-- (เปิดเมื่อเดินไปที่ป้ายสำนักงานที่ดิน/เสาหลักเขต) -->
+  <!-- ========================================== -->
+  <dialog id="modal-land-expansion" class="pixel-modal">
+    <div class="modal-box land-theme">
+      <div class="modal-header header-land">
+        <div class="modal-title">
+          <span class="modal-icon">📐</span>
+          <span>สถาปัตย์ผังแปลงเกษตร (Custom Farmland Architect)</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-land-expansion" aria-label="ปิดสำนักงานที่ดิน">✕</button>
+      </div>
+
+      <div class="modal-body land-architect-body">
+        <p class="section-desc">
+          ออกแบบขนาดแปลงฟาร์มของคุณได้อิสระ ไม่จำกัดแค่สี่เหลี่ยมจัตุรัส! สามารถปรับความกว้างและความยาวได้ตามใจชอบ เช่น <strong>6x2, 5x2, 6x8</strong>:
+        </p>
+
+        <!-- Dimension Controls Row -->
+        <div class="dimension-steppers-container">
+          <!-- Width (Columns) Stepper -->
+          <div class="stepper-card">
+            <span class="stepper-title">↔️ ด้านกว้าง (Columns)</span>
+            <div class="stepper-controls">
+              <button class="pixel-btn btn-step" id="btn-col-minus" title="ลดความกว้าง">-</button>
+              <div class="stepper-value-box">
+                <span class="stepper-num" id="display-cols">6</span>
+                <span class="stepper-unit">ช่อง</span>
+              </div>
+              <button class="pixel-btn btn-step" id="btn-col-plus" title="เพิ่มความกว้าง">+</button>
+            </div>
+          </div>
+
+          <!-- Height (Rows) Stepper -->
+          <div class="stepper-card">
+            <span class="stepper-title">↕️ ด้านยาว (Rows)</span>
+            <div class="stepper-controls">
+              <button class="pixel-btn btn-step" id="btn-row-minus" title="ลดความยาว">-</button>
+              <div class="stepper-value-box">
+                <span class="stepper-num" id="display-rows">2</span>
+                <span class="stepper-unit">ช่อง</span>
+              </div>
+              <button class="pixel-btn btn-step" id="btn-row-plus" title="เพิ่มความยาว">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Layout Presets -->
+        <div class="architect-presets-section">
+          <span class="presets-label">⚡ เลือกขนาดด่วนยอดนิยม:</span>
+          <div class="presets-grid" id="presets-grid">
+            <button class="preset-pill active" data-cols="6" data-rows="2">6 x 2 (12 แปลง)</button>
+            <button class="preset-pill" data-cols="5" data-rows="2">5 x 2 (10 แปลง)</button>
+            <button class="preset-pill" data-cols="4" data-rows="4">4 x 4 (16 แปลง)</button>
+            <button class="preset-pill" data-cols="6" data-rows="8">6 x 8 (48 แปลง)</button>
+            <button class="preset-pill" data-cols="8" data-rows="4">8 x 4 (32 แปลง)</button>
+            <button class="preset-pill" data-cols="10" data-rows="6">10 x 6 (60 แปลง)</button>
+          </div>
+        </div>
+
+        <!-- Live Visual Grid Preview Box -->
+        <div class="architect-preview-box">
+          <div class="preview-box-header">
+            <span>ผังจำลองแปลงฟาร์ม: <strong id="preview-dim-text">6 x 2</strong> (<span id="preview-total-plots">12</span> แปลง)</span>
+          </div>
+          <div class="mini-grid-container" id="mini-grid-container">
+            <!-- Rendered by JS live -->
+          </div>
+        </div>
+
+        <!-- Price & Action Bar -->
+        <div class="architect-action-bar">
+          <div class="cost-breakdown">
+            <div class="cost-row">
+              <span>แปลงทั้งหมด:</span> <strong id="cost-total-plots">12 แปลง</strong>
+            </div>
+            <div class="cost-row">
+              <span>ค่าขยายที่ดิน:</span> <strong id="cost-expansion-gold" class="cost-gold-text">🪙 0 G</strong>
+            </div>
+          </div>
+          <button id="btn-apply-land-layout" class="pixel-btn btn-apply-layout">
+            🏗️ ยืนยันผังแปลงนี้
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================== -->
+  <!-- MODAL 5: คำแนะนำเกม & แผนที่ (Guide & Map) -->
+  <!-- ========================================== -->
+  <dialog id="modal-guide" class="pixel-modal">
+    <div class="modal-box">
+      <div class="modal-header header-farm-shop">
+        <div class="modal-title">
+          <span>🗺️ คำแนะนำและสถานที่ในฟาร์ม</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-guide" aria-label="ปิด">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="guide-locations">
+          <div class="loc-item">
+            <span class="loc-icon">🏡</span>
+            <div><strong>บ้านพัก & ตู้เสื้อผ้า (Farmhouse & Wardrobe):</strong> อยู่ทางทิศตะวันตกเฉียงเหนือ เดินเข้าไปกด [E] หรือกดปุ่ม [C] เพื่อแต่งตัว เปลี่ยนหมวกและเสื้อผ้าได้ตลอดเวลา</div>
+          </div>
+          <div class="loc-item">
+            <span class="loc-icon">🛒</span>
+            <div><strong>ร้านค้าเกษตรลุงไซลาส (General Store):</strong> อยู่ทางทิศเหนือ เดินไปหน้าร้านแล้วกด [E] เพื่อซื้อเมล็ดพันธุ์ ปุ๋ยพรีเมียม และขายผลผลิต</div>
+          </div>
+          <div class="loc-item">
+            <span class="loc-icon">🏭</span>
+            <div><strong>โชว์รูมยานยนต์ (Vehicle Dealership):</strong> อยู่ทางทิศตะวันออกเฉียงเหนือ เดินไปหน้าร้านกด [E] ซื้อรถไถ รถเกี่ยว และรถกระบะ รถทุกคันจะจอดที่ลานหน้าร้านและขึ้นขับได้จริง [กด E]!</div>
+          </div>
+          <div class="loc-item">
+            <span class="loc-icon">📜</span>
+            <div><strong>ป้ายขยายที่ดิน (Land Expansion Sign):</strong> ตั้งอยู่ติดกับขอบแปลงเกษตร เดินไปกด [E] เพื่อซื้อโฉนดขยายขนาดแปลงผักจาก 4x4 เป็น 6x6, 8x8 และ 10x10!</div>
+          </div>
+          <div class="loc-item">
+            <span class="loc-icon">🚜</span>
+            <div><strong>ระบบขับรถ:</strong> เมื่อซื้อรถแล้ว เดินเข้าใกล้รถแล้วกด [E] เพื่อขึ้นขับ เมื่อขับรถไถทับหญ้าจะพรวนดินอัตโนมัติ / ขับรถเกี่ยวทับผักสุกจะเก็บเกี่ยวทันที!</div>
+          </div>
+          <div class="loc-item">
+            <span class="loc-icon">🃏</span>
+            <div><strong>บ่อนไพ่บาคาร่า ลุงแจ็คสัน (Lucky Baccarat Club):</strong> อยู่ทางทิศตะวันออกติดแม่น้ำ เดินไปที่โต๊ะไพ่กด [E] เสี่ยงโชคแทง ฟ้า 1:1, แดง 1:0.95 หรือ เสมอ 1:10 ลุ้นรับแจ็กพอตทองคำ!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================== -->
+  <!-- MODAL 6: ระบบบันทึกข้อมูล (Save & Reset Menu) -->
+  <!-- ========================================== -->
+  <dialog id="modal-save-menu" class="pixel-modal">
+    <div class="modal-box save-theme">
+      <div class="modal-header header-save-menu">
+        <div class="modal-title">
+          <span class="modal-icon">💾</span>
+          <span>ระบบบันทึกข้อมูลฟาร์ม (Save System)</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-save-menu" aria-label="ปิดเมนู">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="section-desc">เกมทำการบันทึกข้อมูลลงใน Browser LocalStorage อัตโนมัติ:</p>
+
+        <div class="save-status-box">
+          <div class="status-row"><span>สถานะการเซฟ:</span> <strong id="save-status-text" class="status-ok">บันทึกเรียบร้อย ✅</strong></div>
+          <div class="status-row"><span>เงินสะสมปัจจุบัน:</span> <strong id="save-gold-text">350 G</strong></div>
+          <div class="status-row"><span>ขนาดแปลงผัก:</span> <span id="save-land-text">4x4</span></div>
+          <div class="status-row"><span>ยานพาหนะที่มี:</span> <span id="save-vehicles-text">ยังไม่มี</span></div>
+        </div>
+
+        <div class="save-actions-grid">
+          <button id="btn-manual-save" class="pixel-btn btn-save-action">💾 บันทึกเกมทันที (Force Save)</button>
+          <button id="btn-reset-game" class="pixel-btn btn-danger-action">⚠️ รีเซ็ตเริ่มใหม่ (Reset All)</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================== -->
+  <!-- MODAL 7: โรงงานแปรรูปเกษตรอุตสาหกรรม (Processing Mill / Factory) -->
+  <!-- ========================================== -->
+  <dialog id="modal-factory" class="pixel-modal">
+    <div class="modal-box factory-theme">
+      <div class="modal-header header-factory">
+        <div class="modal-title">
+          <span class="modal-icon">🏭</span>
+          <span>โรงงานแปรรูปผลผลิต (Artisan Processing Mill)</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-factory" aria-label="ปิดโรงงาน">✕</button>
+      </div>
+
+      <div class="factory-tabs">
+        <button class="factory-tab active" id="f-tab-process" data-tab="view-process-recipes">⚙️ แปรรูปผลผลิต (Processing)</button>
+        <button class="factory-tab" id="f-tab-sell" data-tab="view-process-market">💎 ตลาดสินค้าแปรรูป (Artisan Market)</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- View 1: Recipe Processing -->
+        <div id="view-process-recipes" class="factory-tab-content active">
+          <p class="section-desc">
+            นำผลผลิตเกษตรของคุณมาแปรรูปเป็นสินค้าพรีเมียม เพื่อเพิ่มมูลค่าขายได้สูงสุดถึง <strong>2x - 3.5x เท่า!</strong> (ต้องใช้เงินเหรียญทองซื้อใบอนุญาต/สูตรเครื่องจักรเพื่อปลดล็อกก่อนใช้งาน)
+          </p>
+          <div class="factory-recipes-grid" id="factory-recipes-grid">
+            <!-- Dynamic artisan recipes loaded here -->
+          </div>
+        </div>
+
+        <!-- View 2: Artisan Market -->
+        <div id="view-process-market" class="factory-tab-content">
+          <div class="sell-overview">
+            <p class="section-desc">สินค้าแปรรูปมูลค่าสูง นำส่งขายเข้าตลาดใหญ่ของหุบเขา:</p>
+            <button id="btn-sell-all-artisan" class="pixel-btn btn-sell-all" style="background: #9333ea; border-color: #581c87;">
+              💎 ขายสินค้าแปรรูปทั้งหมด
+            </button>
+          </div>
+          <div class="sell-item-list" id="sell-artisan-list">
+            <!-- Dynamic artisan products to sell loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================== -->
+  <!-- MODAL 9: โต๊ะพนันไพ่บาคาร่า ลุงแจ็ค (Baccarat Casino) -->
+  <!-- ========================================== -->
+  <dialog id="modal-baccarat" class="pixel-modal">
+    <div class="modal-box casino-theme">
+      <div class="modal-header header-casino">
+        <div class="modal-title">
+          <span class="modal-icon">🃏</span>
+          <span>บ่อนไพ่บาคาร่าเสี่ยงโชค (Lucky Baccarat Club)</span>
+        </div>
+        <button class="btn-close-modal" data-close="modal-baccarat" aria-label="ปิดโต๊ะไพ่">✕</button>
+      </div>
+
+      <div class="modal-body casino-body">
+        <!-- Casino Dealer Info -->
+        <div class="casino-dealer-banner">
+          <div class="dealer-avatar">🎩</div>
+          <div class="dealer-text">
+            <div class="dealer-name">ดีลเลอร์แจ็คสัน (Dealer Jackson)</div>
+            <div class="dealer-motto">"ยินดีต้อนรับสู่โต๊ะเสี่ยงโชค! แทงฝั่งไหนจะเข้า 9 แต้ม? ดวงดีรับทองกลับฟาร์มเต็มกระเป๋า!"</div>
+          </div>
+          <div class="dealer-gold-display">
+            <span class="gold-icon">🪙</span>
+            <div>
+              <div class="gold-label">เงินของคุณ</div>
+              <div class="gold-val" id="baccarat-player-gold">350 G</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rules & Payout Quick Bar -->
+        <div class="baccarat-rules-bar">
+          <div class="rule-chip blue-chip">🔵 ฝั่งฟ้า (Player) อัตราจ่าย <strong>1 : 1</strong></div>
+          <div class="rule-chip red-chip">🔴 ฝั่งแดง (Banker) อัตราจ่าย <strong>1 : 0.95</strong></div>
+          <div class="rule-chip tie-chip">🟢 ฝั่งเสมอ (Tie) อัตราจ่าย <strong>1 : 10</strong></div>
+        </div>
+        <p class="baccarat-rule-note">
+          📜 <strong>กติกา:</strong> แจกไพ่ฝั่งละ 2 ใบ ฝั่งที่มีแต้มใกล้เคียง 9 แต้มที่สุดเป็นฝ่ายชนะ! (ถ้าผลรวมเกิน 9 ให้นับเฉพาะหลักหน่วย เช่น 7+8=15 คือ 5 แต้ม | 10, J, Q, K = 0 แต้ม | A = 1 แต้ม)
+        </p>
+
+        <!-- The Baccarat Card Table -->
+        <div class="baccarat-table">
+          <!-- Blue Player Side -->
+          <div class="table-side side-blue" id="table-side-player">
+            <div class="side-header">
+              <span class="side-badge blue-badge">🔵 ฝั่งฟ้า (PLAYER)</span>
+              <span class="side-score" id="score-player">แต้ม: -</span>
+            </div>
+            <div class="cards-holder" id="cards-player">
+              <div class="card-slot empty">🂠</div>
+              <div class="card-slot empty">🂠</div>
+            </div>
+          </div>
+
+          <!-- VS Divider / Result Center -->
+          <div class="table-center-divider">
+            <div class="vs-text">VS</div>
+            <div class="result-badge" id="baccarat-result-badge">วางเดิมพัน</div>
+          </div>
+
+          <!-- Red Banker Side -->
+          <div class="table-side side-red" id="table-side-banker">
+            <div class="side-header">
+              <span class="side-badge red-badge">🔴 ฝั่งแดง (BANKER)</span>
+              <span class="side-score" id="score-banker">แต้ม: -</span>
+            </div>
+            <div class="cards-holder" id="cards-banker">
+              <div class="card-slot empty">🂠</div>
+              <div class="card-slot empty">🂠</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Betting Controls Area -->
+        <div class="baccarat-controls">
+          <!-- Bet Amount Selector -->
+          <div class="bet-amount-row">
+            <span class="bet-label">💰 เลือกจำนวนเงินเดิมพัน:</span>
+            <div class="bet-presets" id="bet-presets">
+              <button class="chip-bet active" data-bet="100">100 G</button>
+              <button class="chip-bet" data-bet="500">500 G</button>
+              <button class="chip-bet" data-bet="1000">1,000 G</button>
+              <button class="chip-bet" data-bet="5000">5,000 G</button>
+              <button class="chip-bet" data-bet="10000">10,000 G</button>
+              <button class="chip-bet" data-bet="50000">50,000 G</button>
+              <button class="chip-bet btn-bet-all" id="btn-bet-all-in">🔥 เทหมดหน้าตัก</button>
+            </div>
+            <div class="custom-bet-input-box">
+              <span>ระบุเอง:</span>
+              <input type="number" id="input-custom-bet" min="10" step="50" value="100" class="pixel-input-num">
+              <span>G</span>
+            </div>
+          </div>
+          <!-- Countdown Timer & Active Bets Display -->
+          <div class="baccarat-timer-bets-area">
+            <div class="baccarat-countdown" id="baccarat-countdown" style="display:none;">
+              <span class="timer-icon">⏱️</span> <span class="timer-value">10</span> <span class="timer-label">วินาที</span>
+            </div>
+            <div class="baccarat-bets-display" id="baccarat-bets-display">
+              <span class="bets-empty">ยังไม่มีเดิมพันในรอบนี้</span>
+            </div>
+          </div>
+
+          <!-- Bet Choice Buttons (Player / Tie / Banker) -->
+          <div class="bet-choices-grid">
+            <button class="btn-bet-choice btn-bet-player" id="btn-bet-blue" data-side="player">
+              <div class="bet-side-title">🔵 แทงฝั่งฟ้า (Player)</div>
+              <div class="bet-payout">จ่าย 1 : 1 (เท่าตัว)</div>
+              <div class="bet-action-tag">คลิกเพื่อวางเดิมพัน!</div>
+            </button>
+
+            <button class="btn-bet-choice btn-bet-tie" id="btn-bet-tie" data-side="tie">
+              <div class="bet-side-title">🟢 แทงเสมอ (Tie Game)</div>
+              <div class="bet-payout">จ่าย 1 : 10 (แจ็กพอต 10 เท่า!)</div>
+              <div class="bet-action-tag">คลิกเพื่อวางเดิมพัน!</div>
+            </button>
+
+            <button class="btn-bet-choice btn-bet-banker" id="btn-bet-red" data-side="banker">
+              <div class="bet-side-title">🔴 แทงฝั่งแดง (Banker)</div>
+              <div class="bet-payout">จ่าย 1 : 0.95 (หักต๋ง 5%)</div>
+              <div class="bet-action-tag">คลิกเพื่อวางเดิมพัน!</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Deal Status & History Log -->
+        <div class="baccarat-status-box" id="baccarat-status-box">
+          <span id="baccarat-status-text">พร้อมเริ่มเดิมพัน! เลือกจำนวนเงินแล้วคลิกแทงฝั่งฟ้า แดง หรือเสมอได้เลย</span>
+        </div>
+
+        <!-- Game History Badges -->
+        <div class="baccarat-history-row">
+          <span class="history-label">สถิติ 10 ตาล่าสุด:</span>
+          <div class="history-list" id="baccarat-history-list">
+            <span class="history-empty">ยังไม่มีประวัติ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================== -->
+  <!-- MODAL 8: ฉากจบเกม (Game Ending / Victory Screen) -->
+  <!-- ========================================== -->
+  <dialog id="modal-game-ending" class="pixel-modal">
+    <div class="modal-box ending-theme">
+      <div class="ending-stars">✨ 🏆 👑 🌟 ✨</div>
+      <h1 class="ending-title">ยินดีด้วย! คุณเคลียร์เกมแล้ว!</h1>
+      <h2 class="ending-subtitle">มหาเศรษฐีแห่งหุบเขาพิกเซล (Pixel Farm Tycoon)</h2>
+
+      <div class="ending-content">
+        <div class="ending-character-preview">
+          <canvas id="ending-char-canvas" width="160" height="160"></canvas>
+        </div>
+        <div class="ending-stats">
+          <div class="ending-stat-row">
+            <span>🏆 ความสำเร็จ:</span>
+            <strong>สะสมทองครบ 500,000 G!</strong>
+          </div>
+          <div class="ending-stat-row">
+            <span>💰 เงินสะสมทั้งหมด:</span>
+            <strong id="ending-gold-display" class="gold-text">500,000 G</strong>
+          </div>
+          <div class="ending-stat-row">
+            <span>🌾 เจ้าของฟาร์ม:</span>
+            <span id="ending-farmer-name">ชาวสวนพิกเซล</span>
+          </div>
+          <div class="ending-stat-row">
+            <span>🚜 สถิติยานพาหนะ:</span>
+            <span id="ending-vehicles-summary">ครอบครองยานยนต์ครบครัน</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="ending-lore">
+        จากชาวสวนมือใหม่ที่เริ่มต้นด้วยเงินเพียงเล็กน้อย สู่การเป็นเจ้าของอาณาจักรการเกษตรสุดยิ่งใหญ่
+        ที่มีทั้งรถไถพรวนดิน รถเกี่ยวข้าวความเร็วสูง และผืนดินกว้างใหญ่ไพศาล
+        คุณคือตำนานแห่ง Pixel Farm Valley อย่างแท้จริง!
+      </p>
+
+      <div class="ending-actions">
+        <button id="btn-continue-playing" class="pixel-btn btn-continue-game">
+          🌾 เล่นต่อในฟาร์ม (Free Play)
+        </button>
+        <button id="btn-new-game-plus" class="pixel-btn btn-restart-game">
+          🔄 เริ่มเล่นใหม่อีกครั้ง (New Game)
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Main Game Script -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
